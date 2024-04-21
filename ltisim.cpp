@@ -1,7 +1,7 @@
 // ltisim.cpp
 // Kyle Coloma, Jason Lorenzo
 // ENGG 151.01-A
-// April 08, 2024
+// April 21, 2024
 
 #include "ltisim.h"
 #include <fstream>
