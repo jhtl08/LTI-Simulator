@@ -4,77 +4,34 @@
 // April 21, 2024
 
 #include "ltisim.h"
+
 #include <fstream>
+#include <stdexcept>
 #include <vector>
 #include <cmath>
 
 using namespace std;
 
-ltiSystem::ltiSystem()
+void setInitialConditions(double*& xData, double*& yData)
 {
-  Mplus1 = 1;
-  N = 1;
-  acoef = new double[N];
-  bcoef = new double[Mplus1];
-  acoef[0] = 0;
-  bcoef[0] = 0;
+  xData = new double[2];
+  yData = new double[2];
+
+  xData[0] = 0.0;
+  xData[1] = 0.0;
+  yData[0] = 0.0;
+  yData[1] = 0.0;
 }
 
-bool ltiSystem::ltiSystemImport(string fileName)
-{ // NOTE: this is not yet robust
-  // opens and checks the file
-  ifstream isystemFile;
-  isystemFile.open(fileName);
-  if (!isystemFile.is_open())
-  { // fail import feedback
-    cout << "Unable to import a valid LTI system from "
-    << fileName << endl;
-    return false;
-  }
-
-  // parsing M+1 and N
-  string line;
-  getline(isystemFile, line);
-  stringstream ss1(line);
-  ss1 >> Mplus1;
-  getline(isystemFile, line);
-  stringstream ss2(line);
-  ss2 >> N;
-
-  // parsing nonrecursive coefs (b)
-  bcoef = new double[Mplus1];
-  for(int i=0; i<Mplus1; i++)
-  {
-    getline(isystemFile, line);
-    stringstream ss(line);
-    ss >> bcoef[i];
-  }
-
-  // parsing recursive coefs (a)
-  acoef = new double[N];
-  for(int i=0; i<N; i++)
-  {
-    getline(isystemFile, line);
-    stringstream ss(line);
-    ss >> acoef[i];
-  }
-
-  // successful import feedback
-  cout << "System obtained from " << fileName 
-  << ". recursive coefs: " << N 
-  << ", nonrecursive coefs: " << Mplus1 << endl;
-  return true;
-}
-
-int SignalImport(string fileName, double **xData)
+int SignalImport(string signalFileName, double **xData)
 {
   // opens and checks the files
   ifstream isignalFile;
-  isignalFile.open(fileName);
+  isignalFile.open(signalFileName);
   if (!isignalFile.is_open())
   { // fail import feedback
     cout << "Unable to import a valid signal from "
-         << fileName << endl;
+         << signalFileName << endl;
     return 0;
   }
   // parsing elements to vector
@@ -97,7 +54,7 @@ int SignalImport(string fileName, double **xData)
     }
     else // Ex. '-4a'
     {
-      cout << "Encountered nonfloat as first element in " << fileName
+      cout << "Encountered nonfloat as first element in " << signalFileName
            << "\nNo elements imported.\n"
            << endl;
       return 0;
@@ -105,7 +62,7 @@ int SignalImport(string fileName, double **xData)
   }
   else // Ex. 'a'
   {
-    cout << "Encountered nonfloat as first element in " << fileName
+    cout << "Encountered nonfloat as first element in " << signalFileName
          << "\nNo elements imported.\n"
          << endl;
     return 0;
@@ -129,7 +86,7 @@ int SignalImport(string fileName, double **xData)
     }
     else // Ex. '-4a'
     {
-      cout << "Encountered nonfloat as first element in " << fileName
+      cout << "Encountered nonfloat as first element in " << signalFileName
            << "\nNo elements imported.\n"
            << endl;
       return 0;
@@ -144,7 +101,7 @@ int SignalImport(string fileName, double **xData)
   {
     if (line.empty())
     {
-      cout << "Parsing of input from " << fileName
+      cout << "Parsing of input from " << signalFileName
            << " stopped at duration " << vect_elements.size()
            << " due to an empty line." << endl;
       break;
@@ -162,7 +119,7 @@ int SignalImport(string fileName, double **xData)
       }
       else // Ex. '4a'
       {
-        cout << "Parsing of input from " << fileName
+        cout << "Parsing of input from " << signalFileName
              << " stopped at duration " << vect_elements.size()
              << " due to invalid element." << endl;
         break;
@@ -170,7 +127,7 @@ int SignalImport(string fileName, double **xData)
     }
     else // Ex. 'a'
     {
-      cout << "Parsing of input from " << fileName
+      cout << "Parsing of input from " << signalFileName
            << " stopped at duration " << vect_elements.size()
            << " due to invalid element." << endl;
       break;
@@ -191,9 +148,165 @@ int SignalImport(string fileName, double **xData)
 
   // successful import feedback
   cout << "Signal with start index 0, duration " << duration
-       << ", obtained from " << fileName
+       << ", obtained from " << signalFileName
        << endl;
 
   isignalFile.close();
   return duration;
+}
+
+string getInstructions() 
+{
+    string instructions = 
+  "----------------------------------------------------"
+  "\nValid Input Commands\n"
+  "help - provides instructions on how to use the application\n"
+  "system filename* - extract coefficients of an LTI system from "
+  "filename if it is a valid LTI system file\n"
+  "signal filename* - extract a signal from filename if it is a "
+  "valid signal file, signal is treated as input to the system\n"
+  "any floating point number (e.g., 0, 1.1) - the inputted number "
+  "is treated as the next input to the system\n"
+  "clear - clear the application's memory of previous inputs and "
+  "outputs to 0 \n"
+  "cls - only clears the screen\n" 
+  "exit - exit the application\n\n"
+  "*change filename accordingly\n"
+  "----------------------------------------------------\n";
+
+  return instructions;
+}
+
+bool isInteger(string data)
+{
+  istringstream iss(data);
+  int integer_number;
+  iss >> integer_number;
+
+  return iss.eof() && !iss.fail();
+}
+
+bool isFloat(string data) 
+{
+  istringstream iss(data);
+  float floating_number;
+  iss >> floating_number;
+  
+  return iss.eof() && !iss.fail(); 
+}
+
+bool SystemImport(string systemFilename, int& Mplus1, int& N, double*& aCoeff, double*& bCoeff)
+{
+  ifstream isystemFile;
+  isystemFile.open(systemFilename);
+  if (!isystemFile.is_open()) {
+      cout << "Unable to import a valid LTI system from " << systemFilename << endl;
+      return false;
+  }
+
+  // parsing elements to vector
+  string line;
+  string data;
+
+  // Check Mplus1
+  getline(isystemFile, line);
+  stringstream ss(line);
+  ss >> data;
+
+  if (isInteger(data)) 
+  {
+    Mplus1 = stoi(data);
+  } 
+  else 
+  {
+    cout << "Error: Mplus1 is not an integer." << endl;
+    return false;
+  }
+
+  // Check N
+  getline(isystemFile, line);
+  stringstream ss1(line);
+  ss1 >> data;
+
+  if (isInteger(data)) 
+  {
+    N = stoi(data);
+  } 
+  else 
+  {
+    cout << "Error: N is not an integer." << endl;
+    return false;
+  }
+
+  // Check bCoeff
+  bCoeff = new double[Mplus1];
+
+  for(int i=0; i < Mplus1; i++)
+  {
+    getline(isystemFile, line);
+    stringstream ss2(line);
+    ss2 >> data;
+
+    if(isFloat(data))
+    {
+      bCoeff[i] = stof(data);
+    }
+    else
+    {
+      cout << "Error: bCoeff is not a float" << endl;
+      return false;
+    }
+  }
+
+  aCoeff = new double[N];
+
+  for(int i=0; i < Mplus1; i++)
+  {
+    getline(isystemFile, line);
+    stringstream ss3(line);
+    ss3 >> data;
+
+    if(isFloat(data))
+    {
+      aCoeff[i] = stof(data);
+    }
+    else
+    {
+      cout << "Error: aCoeff is not a float" << endl;
+      return false;
+    }
+  }
+
+  cout << "System obtained from " << systemFilename 
+  << ". recursive coefs: " << N 
+  << ", nonrecursive coefs: " << Mplus1 << endl;
+
+  return true;
+}
+
+double sumProduct(int Coeff, double data)
+{
+
+}
+
+void computeOutput(float input_sample, int& Mplus1, int& N, int& signalDuration, double*& aCoeff, double*& bCoeff)
+{
+  
+}
+
+void systemDetails(int& Mplus1, int& N, double*& aCoeff, double*& bCoeff)
+{
+  cout << Mplus1 << endl;
+  cout << N << endl;
+
+  for (int i = 0; i < Mplus1; i++)
+  {
+    cout << bCoeff[i] << endl;
+
+  }
+
+  for (int i = 0; i < N; i++)
+  {
+    cout << aCoeff[i] << endl;
+  }
 }

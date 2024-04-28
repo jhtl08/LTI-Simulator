@@ -10,43 +10,42 @@ using namespace std;
 int main()
 {
 
-  string line, userInput;
-  double numInput;
-  bool ltisystemLoaded = 0;
+  bool systemFile = false;
+  bool signalFile = false;
+
+  // System Variables
+  int Mplus1 = 0, N = 0;
+  double *bCoeff, *aCoeff;
+
+  // Signal Variables
   double *xData;
-  int signalDuration;
-  ltiSystem yLTI;
+  double *yData;
 
-  string instructions = 
-  "----------------------------------------------------"
-  "\nValid Input Commands\n"
-  "help - provides instructions on how to use the application\n"
-  "system filename* - extract coefficients of an LTI system from "
-  "filename if it is a valid LTI system file\n"
-  "signal filename* - extract a signal from filename if it is a "
-  "valid signal file, signal is treated as input to the system\n"
-  "any floating point number (e.g., 0, 1.1) - the inputted number "
-  "is treated as the next input to the system\n"
-  "clear - clear the application's memory of previous inputs and "
-  "outputs to 0 \n"
-  "cls - only clears the screen\n" 
-  "exit - exit the application\n\n"
-  "*change filename accordingly\n"
-  "----------------------------------------------------\n";
+  int signalDuration = 0; 
 
-  cout << "LTI System Simulator" << endl;
+  cout << "LTISim" << endl;
   cout << "Type \"help\" for more information" << endl; 
+
+  // For Checking Inputs
+  string line;
+  string userInput;
+  double numInput;
+
+  // Set Initial Conditions
+  setInitialConditions(xData, yData);
 
   while(true)
   {
     cout << "\nltisim> ";
     getline(cin, line);
     stringstream ss(line);
+
+    // for float inputs
     if (ss >> numInput) // for floating point number inputs
     {
-      if (ltisystemLoaded) // check if LTI system is ready
+      if (systemFile && (signalDuration <= 3)) // check if LTI system is ready
       {
-        cout << "System function for " << numInput << " runs here." <<endl;
+        // print output
       }
       else
       {
@@ -54,32 +53,38 @@ int main()
       }
       continue; // if input is valid float, skip other input types
     }
-    ss.clear(); // clears ss error flags if input is nonfloat
-    if (ss >> userInput) // for string inputs
+    
+    ss.clear();
+
+    // for string inputs
+    if (ss >> userInput)
     {
-      ss.clear();
+      // "help" input
       if (userInput == "help")
       {
-        cout << instructions << endl;
+        if (!(ss >> userInput) && ss.eof()) // no second argument
+        {
+          cout << getInstructions() << endl; // print instructions
+        }
+        else // second argument detected
+        {
+          cout << "Invalid input. Type \"help\" for more information." << endl;
+        }
       }
-      else if (userInput == "system") // for system inputs
+
+      // "system [filename]" input
+      else if (userInput == "system")
       {
         if (ss >> userInput) // check for second arg (filename)
         {
-          if (yLTI.ltiSystemImport(userInput))
+          if (!(ss >> userInput) && ss.eof() && !systemFile) // check file name
           {
-            if (ltisystemLoaded) // check if another LTI system is ready
-            {
-              cout << "Previous system file overwritten." << endl;
-            }
-            else
-            {
-              ltisystemLoaded = true;
-            }
+            systemFile = SystemImport(userInput, Mplus1, N, aCoeff, bCoeff);
+            systemDetails(Mplus1, N, aCoeff, bCoeff);
           }
           else
           {
-            cout << "No system obtained." << endl;
+            cout << "Invalid System" << endl;
           }          
         }
         else
@@ -87,25 +92,19 @@ int main()
           cout << "filename is missing from the input" << endl;
         }
       }
+
+      // "signal [filename]" input
       else if (userInput == "signal") // for signal inputs
       {
         if (ss >> userInput) // check for second arg (filename)
         {
-          if (ltisystemLoaded) // check if LTI system is ready
+          if (!(ss >> userInput) && ss.eof() && !signalFile) // check file name
           {
-            signalDuration = SignalImport(userInput, &xData);
-            if (signalDuration == 0)
-            {
-              cout << "No outputs computed." << endl;
-            }
-            else
-            {
-              cout << "System function for xData runs here." <<endl;
-            }
+            
           }
           else
           {
-            cout << "Cannot simulate. No system defined" << endl;
+            cout << "Invalid System" << endl;
           }
         }
         else
@@ -113,29 +112,58 @@ int main()
           cout << "filename is missing from the input" << endl;
         }
       }
-      else if (userInput == "cls")
-      {
-        system("cls");
-        cout << "LTI System Simulator" << endl;
-        cout << "Type \"help\" for more information" << endl; 
-      }
-      else if (userInput == "exit")
-      {
-        cout << "LTI System Simulator terminated.\n" << endl;
-        break;
-      }
+
+      // "clear" input
       else if (userInput == "clear")
       {
-        yLTI = ltiSystem();
-        ltisystemLoaded = false;
-        delete[] xData;
+        if (!(ss >> userInput) && ss.eof()) // no second argument
+        {
+          // clear file
+        }
+        else // second argument detected
+        {
+          cout << "Invalid input. Type \"help\" for more information." << endl;
+        }
       }
+
+      // "exit" input
+      else if (userInput == "exit")
+      {
+        if (!(ss >> userInput) && ss.eof()) // no second argument
+        {
+          cout << "LTI System Simulator terminated.\n" << endl;
+            break;
+        }
+        else // second argument detected
+        {
+          cout << "Invalid input. Type \"help\" for more information." << endl;
+        }
+      }
+
+      // "cls" input
+      else if (userInput == "cls")
+      {
+        if (!(ss >> userInput) && ss.eof()) // no second argument
+        {
+          system("cls");
+          cout << "LTI System Simulator" << endl;
+          cout << "Type \"help\" for more information" << endl; 
+        }
+        else // second argument detected
+        {
+          cout << "Invalid input. Type \"help\" for more information." << endl;
+        }
+      }
+
+      // invalid first argument
       else
       {
         cout << "Invalid input. Type \"help\" for more information."
         << endl;
       }
     }
+
+    // invalid first argument format (not a floating number or a string)
     else
     {
       cout << "Please input a command." << endl;
