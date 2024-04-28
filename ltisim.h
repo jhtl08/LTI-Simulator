@@ -1,7 +1,7 @@
 // ltisim.h
 // Kyle Coloma, Jason Lorenzo
 // ENGG 151.01-A
-// April 21, 2024
+// April 28, 2024
 
 #ifndef LTISIMHEADERDEF
 #define LTISIMHEADERDEF
@@ -11,11 +11,8 @@
 
 using namespace std;
 
-
-void setInitialConditions(double*& xData, double*& yData);
-
 // signal import function
-int SignalImport(string fileName, double **xData);
+int signalImport(string fileName, double **xData);
 
 // validate integer number function
 bool isInteger(string data);
@@ -24,12 +21,15 @@ bool isInteger(string data);
 bool isFloat(string data);
 
 // system import function
-bool SystemImport(std::string systemFilename, int& Mplus1, int& N, double*& aCoeff, double*& bCoeff);
+bool systemImport(std::string systemFilename, int& Mplus1, int& N, 
+double*& aCoeff, double*& bCoeff);
 
 // instruction function
-string getInstructions();
+void getInstructions();
 
-// system details function (to be removed before final submission)
-void systemDetails( int& Mplus1, int& N, double*& aCoeff, double*& bCoeff);
+void pushData(double*& xData, int& dataSize, double numInput);
+
+double computeOutput(int& Mplus1, int& N, int& xsize, int& ysize, 
+double* aCoeff, double* bCoeff, double* xData, double* yData);
 
 #endif

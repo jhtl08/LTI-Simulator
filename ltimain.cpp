@@ -1,7 +1,7 @@
 // ltimain.cpp
 // Kyle Coloma, Jason Lorenzo
 // ENGG 151.01-A
-// April 21, 2024
+// April 28, 2024
 
 #include "ltisim.h"
 
@@ -9,7 +9,7 @@ using namespace std;
 
 int main()
 {
-
+  
   bool systemFile = false;
   bool signalFile = false;
 
@@ -21,6 +21,17 @@ int main()
   double *xData;
   double *yData;
 
+  // Initial Conditions
+  int xDataSize = 2;
+  xData = new double[xDataSize];
+  xData[0] = 0.0; // x(-2)
+  xData[1] = 0.0; // x(-1)
+
+  int yDataSize = 2;
+  yData = new double[yDataSize];
+  yData[0] = 0.0; // y(-2)
+  yData[1] = 0.0; // y(-1)
+
   int signalDuration = 0; 
 
   cout << "LTISim" << endl;
@@ -31,9 +42,6 @@ int main()
   string userInput;
   double numInput;
 
-  // Set Initial Conditions
-  setInitialConditions(xData, yData);
-
   while(true)
   {
     cout << "\nltisim> ";
@@ -43,9 +51,21 @@ int main()
     // for float inputs
     if (ss >> numInput) // for floating point number inputs
     {
-      if (systemFile && (signalDuration <= 3)) // check if LTI system is ready
+      if (systemFile && ((xDataSize - 2) <= 3)) // check if LTI system is ready
       {
-        // print output
+        if (!(ss >> userInput) && ss.eof()) // no second argument
+        {
+          pushData(xData, xDataSize, numInput);
+          double result = computeOutput(Mplus1, N, xDataSize, 
+          yDataSize, aCoeff, bCoeff, xData, yData);
+          cout << result << endl;
+          
+          pushData(yData, yDataSize, result);
+        }
+        else // second argument detected
+        {
+          cout << "Invalid input. Type \"help\" for more information." << endl;
+        }
       }
       else
       {
@@ -64,7 +84,7 @@ int main()
       {
         if (!(ss >> userInput) && ss.eof()) // no second argument
         {
-          cout << getInstructions() << endl; // print instructions
+          getInstructions();
         }
         else // second argument detected
         {
@@ -79,8 +99,7 @@ int main()
         {
           if (!(ss >> userInput) && ss.eof() && !systemFile) // check file name
           {
-            systemFile = SystemImport(userInput, Mplus1, N, aCoeff, bCoeff);
-            systemDetails(Mplus1, N, aCoeff, bCoeff);
+            systemFile = systemImport(userInput, Mplus1, N, aCoeff, bCoeff);
           }
           else
           {
@@ -100,7 +119,7 @@ int main()
         {
           if (!(ss >> userInput) && ss.eof() && !signalFile) // check file name
           {
-            
+            signalImport(userInput, &xData);
           }
           else
           {

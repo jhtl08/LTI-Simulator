@@ -1,7 +1,7 @@
 // ltisim.cpp
 // Kyle Coloma, Jason Lorenzo
 // ENGG 151.01-A
-// April 21, 2024
+// April 28, 2024
 
 #include "ltisim.h"
 
@@ -12,18 +12,8 @@
 
 using namespace std;
 
-void setInitialConditions(double*& xData, double*& yData)
-{
-  xData = new double[2];
-  yData = new double[2];
 
-  xData[0] = 0.0;
-  xData[1] = 0.0;
-  yData[0] = 0.0;
-  yData[1] = 0.0;
-}
-
-int SignalImport(string signalFileName, double **xData)
+int signalImport(string signalFileName, double **xData)
 {
   // opens and checks the files
   ifstream isignalFile;
@@ -155,9 +145,9 @@ int SignalImport(string signalFileName, double **xData)
   return duration;
 }
 
-string getInstructions() 
+void getInstructions() 
 {
-    string instructions = 
+  string instructions = 
   "----------------------------------------------------"
   "\nValid Input Commands\n"
   "help - provides instructions on how to use the application\n"
@@ -174,7 +164,7 @@ string getInstructions()
   "*change filename accordingly\n"
   "----------------------------------------------------\n";
 
-  return instructions;
+  cout << instructions << endl;
 }
 
 bool isInteger(string data)
@@ -195,7 +185,8 @@ bool isFloat(string data)
   return iss.eof() && !iss.fail(); 
 }
 
-bool SystemImport(string systemFilename, int& Mplus1, int& N, double*& aCoeff, double*& bCoeff)
+bool systemImport(string systemFilename, int& Mplus1, int& N, 
+double*& aCoeff, double*& bCoeff)
 {
   ifstream isystemFile;
   isystemFile.open(systemFilename);
@@ -258,9 +249,10 @@ bool SystemImport(string systemFilename, int& Mplus1, int& N, double*& aCoeff, d
     }
   }
 
+  // Check aCoeff
   aCoeff = new double[N];
 
-  for(int i=0; i < Mplus1; i++)
+  for(int i=0; i < N; i++)
   {
     getline(isystemFile, line);
     stringstream ss3(line);
@@ -284,29 +276,41 @@ bool SystemImport(string systemFilename, int& Mplus1, int& N, double*& aCoeff, d
   return true;
 }
 
-double sumProduct(int Coeff, double data)
-{
+double sumProduct(double* Coeff, double* data, int& Coeff_size, 
+int& size) {
+    double result = 0.0;
 
+    for (int i = 0; i < Coeff_size; i++)
+    {
+        result += Coeff[i] * data[(size - 1) - i];
+    }
+
+    return result;
 }
 
-void computeOutput(float input_sample, int& Mplus1, int& N, int& signalDuration, double*& aCoeff, double*& bCoeff)
+double computeOutput(int& Mplus1, int& N, int& xsize, int& ysize, 
+double* aCoeff, double* bCoeff, double* xData, double* yData) {
+    double output;
+
+    output = -sumProduct(aCoeff, yData, N, ysize) + sumProduct(bCoeff, xData, Mplus1, xsize) ;
+
+    return output;
+}
+
+void pushData(double*& Data, int& dataSize, double numInput)
 {
+  double* temp = new double[dataSize + 1];
   
-}
-
-void systemDetails(int& Mplus1, int& N, double*& aCoeff, double*& bCoeff)
-{
-  cout << Mplus1 << endl;
-  cout << N << endl;
-
-  for (int i = 0; i < Mplus1; i++)
+  for (int i = 0; i < dataSize; ++i) 
   {
-    cout << bCoeff[i] << endl;
-
+    temp[i] = Data[i];
   }
 
-  for (int i = 0; i < N; i++)
-  {
-    cout << aCoeff[i] << endl;
-  }
+  temp[dataSize] = numInput;
+
+  delete[] Data;
+
+  Data = temp;
+
+  dataSize++;
 }
