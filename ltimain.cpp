@@ -220,7 +220,7 @@ int main()
                 }
                 pushData(yData, yDataSize, result);
               }
-              if (importSize > 10)
+              if (importSize >= 10)
               {
                 cout << importSize << " inputs were simulated." 
                 << endl;
