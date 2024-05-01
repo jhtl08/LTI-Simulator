@@ -11,7 +11,6 @@ int main()
 {
   
   bool systemFile = false;
-  bool signalFile = false;
 
   // System Variables
   int Mplus1 = 0, N = 0;
@@ -32,8 +31,6 @@ int main()
   yData = new double[yDataSize];
   yData[0] = 0.0; // y(-2)
   yData[1] = 0.0; // y(-1)
-
-  int signalDuration = 0; 
 
   cout << "LTISim" << endl;
   cout << "Type \"help\" for more information" << endl; 
@@ -98,9 +95,26 @@ int main()
       {
         if (ss >> userInput) // check for second arg (filename)
         {
-          if (!(ss >> userInput) && ss.eof() && !systemFile) // check file name
+          if (!(ss >> userInput) && ss.eof()) // check file name
           {
-            systemFile = systemImport(userInput, Mplus1, N, aCoeff, bCoeff);
+            if (systemFile) // if there's already a system
+            {
+              bool importSuccess = systemImport(userInput, 
+              Mplus1, N, aCoeff, bCoeff);
+              if (importSuccess)
+              {
+                cout << "LTI system overwritten" << endl;
+              }
+              else
+              {
+                cout << "Previous LTI system still active" << endl;
+              }
+            }
+            else
+            {
+              systemFile = systemImport(userInput, Mplus1, N, 
+              aCoeff, bCoeff);
+            }
           }
           else
           {
@@ -118,22 +132,29 @@ int main()
       {
         if (ss >> userInput) // check for second arg (filename)
         {
-          if (!(ss >> userInput) && ss.eof() && !signalFile) // check file name
+          if (systemFile)
           {
-            int importSize = signalImport(userInput, &importedData);
-            for (int i = 0; i < importSize; i++)
+            if (!(ss >> userInput) && ss.eof()) // check file name
             {
-              pushData(xData, xDataSize, importedData[i]);
-              double result = computeOutput(Mplus1, N, xDataSize, 
-                yDataSize, aCoeff, bCoeff, xData, yData);
-              cout << importedData[i] << " \t" << result << endl;
+              int importSize = signalImport(userInput, &importedData);
+              for (int i = 0; i < importSize; i++)
+              {
+                pushData(xData, xDataSize, importedData[i]);
+                double result = computeOutput(Mplus1, N, xDataSize, 
+                  yDataSize, aCoeff, bCoeff, xData, yData);
+                cout << importedData[i] << " \t" << result << endl;
 
-              pushData(yData, yDataSize, result);
+                pushData(yData, yDataSize, result);
+              }
+            }
+            else
+            {
+              cout << "Invalid System" << endl;
             }
           }
           else
           {
-            cout << "Invalid System" << endl;
+            cout << "Cannot simulate. No system defined" << endl;
           }
         }
         else
@@ -147,7 +168,46 @@ int main()
       {
         if (!(ss >> userInput) && ss.eof()) // no second argument
         {
-          // clear file
+          cout << "x: ";
+          for (int i=0; i<6; i++)
+          {
+            cout << xData[i] << ", ";
+          }
+          cout << "\ny: ";
+          for (int i=0; i<6; i++)
+          {
+            cout << yData[i] << ", ";
+          }
+          systemFile = false;
+          Mplus1 = 0;
+          N = 0;
+          delete[] bCoeff;
+          delete[] aCoeff;
+
+          delete[] xData;
+          delete[] yData;
+          
+          int xDataSize = 2;
+          xData = new double[xDataSize];
+          xData[0] = 0.0; // x(-2)
+          xData[1] = 0.0; // x(-1)
+
+          int yDataSize = 2;
+          yData = new double[yDataSize];
+          yData[0] = 0.0; // y(-2)
+          yData[1] = 0.0; // y(-1)
+
+          cout << "Application's memory cleared" << endl; 
+          cout << "x: ";
+          for (int i=0; i<6; i++)
+          {
+            cout << xData[i] << ", ";
+          }
+          cout << "\ny: ";
+          for (int i=0; i<6; i++)
+          {
+            cout << yData[i] << ", ";
+          }
         }
         else // second argument detected
         {

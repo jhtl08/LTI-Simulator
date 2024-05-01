@@ -127,6 +127,7 @@ int signalImport(string signalFileName, double **importedData)
 
   int duration = vect_elements.size();
 
+  delete[] importedData;
   // allocate memory
   *importedData = new double[duration];
 
@@ -191,9 +192,15 @@ double*& aCoeff, double*& bCoeff)
   ifstream isystemFile;
   isystemFile.open(systemFilename);
   if (!isystemFile.is_open()) {
-      cout << "Unable to import a valid LTI system from " << systemFilename << endl;
+      cout << "Unable to import a valid LTI system from " << 
+      systemFilename << endl;
       return false;
   }
+  
+  // temp variables to avoid immediately overwriting parameters
+  int temp_Mplus1, temp_N;
+  double *temp_aCoeff;
+  double *temp_bCoeff;
 
   // parsing elements to vector
   string line;
@@ -206,7 +213,7 @@ double*& aCoeff, double*& bCoeff)
 
   if (isInteger(data)) 
   {
-    Mplus1 = stoi(data);
+    temp_Mplus1 = stoi(data);
   } 
   else 
   {
@@ -221,7 +228,7 @@ double*& aCoeff, double*& bCoeff)
 
   if (isInteger(data)) 
   {
-    N = stoi(data);
+    temp_N = stoi(data);
   } 
   else 
   {
@@ -230,48 +237,80 @@ double*& aCoeff, double*& bCoeff)
   }
 
   // Check bCoeff
-  bCoeff = new double[Mplus1];
+  temp_bCoeff = new double[temp_Mplus1];
 
-  for(int i=0; i < Mplus1; i++)
+  for(int i=0; i < temp_Mplus1; i++)
   {
-    getline(isystemFile, line);
+    if(!getline(isystemFile, line))
+    {
+      cout << "Error: insufficient coefficients" << endl;
+      return false;
+    }
+    if (line.empty())
+    {
+      cout << "Error: encountered empty line implying eof " << 
+      "while there's insufficient coefficients" << endl;
+      return false;
+    }
     stringstream ss2(line);
     ss2 >> data;
 
     if(isFloat(data))
     {
-      bCoeff[i] = stof(data);
+      temp_bCoeff[i] = stof(data);
     }
     else
     {
-      cout << "Error: bCoeff is not a float" << endl;
+      cout << "Error: encountered non-float coefficient" << endl;
       return false;
     }
+
+    data = "";
   }
 
   // Check aCoeff
-  aCoeff = new double[N];
+  temp_aCoeff = new double[temp_N];
 
-  for(int i=0; i < N; i++)
+  for(int i=0; i < temp_N; i++)
   {
-    getline(isystemFile, line);
+    if(!getline(isystemFile, line))
+    {
+      cout << "Error: insufficient coefficients" << endl;
+      return false;
+    }
+    if (line.empty())
+    {
+      cout << "Error: encountered empty line implying eof " << 
+      "while there's insufficient coefficients" << endl;
+      return false;
+    }
     stringstream ss3(line);
     ss3 >> data;
 
     if(isFloat(data))
     {
-      aCoeff[i] = stof(data);
+      temp_aCoeff[i] = stof(data);
     }
     else
     {
-      cout << "Error: aCoeff is not a float" << endl;
+      cout << "Error: encountered non-float coefficient" << endl;
       return false;
     }
-  }
 
-  cout << "System obtained from " << systemFilename 
-  << ". recursive coefs: " << N 
+    data = "";
+  }
+  
+  // Since no errors, overwrite LTI system
+  Mplus1 = temp_Mplus1;
+  N = temp_N;
+  aCoeff = temp_aCoeff;
+  bCoeff = temp_bCoeff;
+
+  // Successful system import feedback
+  cout << "New system obtained from " << systemFilename 
+  << "\nrecursive coefs: " << N 
   << ", nonrecursive coefs: " << Mplus1 << endl;
+  cout << "READY" << endl;
 
   return true;
 }
