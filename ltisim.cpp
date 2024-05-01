@@ -1,7 +1,7 @@
 // ltisim.cpp
 // Kyle Coloma, Jason Lorenzo
 // ENGG 151.01-A
-// April 28, 2024
+// May 1, 2024
 
 #include "ltisim.h"
 
@@ -13,7 +13,7 @@
 using namespace std;
 
 
-int signalImport(string signalFileName, double **xData)
+int signalImport(string signalFileName, double **importedData)
 {
   // opens and checks the files
   ifstream isignalFile;
@@ -128,12 +128,12 @@ int signalImport(string signalFileName, double **xData)
   int duration = vect_elements.size();
 
   // allocate memory
-  *xData = new double[duration];
+  *importedData = new double[duration];
 
   // convert vector to array
   for (int i = 0; i < duration; i++)
   {
-    (*xData)[i] = vect_elements[i];
+    (*importedData)[i] = vect_elements[i];
   }
 
   // successful import feedback

@@ -1,7 +1,7 @@
 // ltimain.cpp
 // Kyle Coloma, Jason Lorenzo
 // ENGG 151.01-A
-// April 28, 2024
+// May 1, 2024
 
 #include "ltisim.h"
 
@@ -20,6 +20,7 @@ int main()
   // Signal Variables
   double *xData;
   double *yData;
+  double *importedData;
 
   // Initial Conditions
   int xDataSize = 2;
@@ -51,7 +52,7 @@ int main()
     // for float inputs
     if (ss >> numInput) // for floating point number inputs
     {
-      if (systemFile && ((xDataSize - 2) <= 3)) // check if LTI system is ready
+      if (systemFile) // check if LTI system is ready
       {
         if (!(ss >> userInput) && ss.eof()) // no second argument
         {
@@ -119,7 +120,16 @@ int main()
         {
           if (!(ss >> userInput) && ss.eof() && !signalFile) // check file name
           {
-            signalImport(userInput, &xData);
+            int importSize = signalImport(userInput, &importedData);
+            for (int i = 0; i < importSize; i++)
+            {
+              pushData(xData, xDataSize, importedData[i]);
+              double result = computeOutput(Mplus1, N, xDataSize, 
+                yDataSize, aCoeff, bCoeff, xData, yData);
+              cout << importedData[i] << " \t" << result << endl;
+
+              pushData(yData, yDataSize, result);
+            }
           }
           else
           {

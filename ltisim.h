@@ -1,7 +1,7 @@
 // ltisim.h
 // Kyle Coloma, Jason Lorenzo
 // ENGG 151.01-A
-// April 28, 2024
+// May 1, 2024
 
 #ifndef LTISIMHEADERDEF
 #define LTISIMHEADERDEF
