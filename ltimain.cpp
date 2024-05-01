@@ -222,8 +222,10 @@ int main()
               }
               if (importSize > 10)
               {
-                cout << importSize << "inputs were simulated." 
+                cout << importSize << " inputs were simulated." 
                 << endl;
+                cout << yData[yDataSize-1] << 
+                " is the latest output." << endl;
               }
             }
             else
