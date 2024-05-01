@@ -146,28 +146,6 @@ int signalImport(string signalFileName, double **importedData)
   return duration;
 }
 
-void getInstructions() 
-{
-  string instructions = 
-  "----------------------------------------------------"
-  "\nValid Input Commands\n"
-  "help - provides instructions on how to use the application\n"
-  "system filename* - extract coefficients of an LTI system from "
-  "filename if it is a valid LTI system file\n"
-  "signal filename* - extract a signal from filename if it is a "
-  "valid signal file, signal is treated as input to the system\n"
-  "any floating point number (e.g., 0, 1.1) - the inputted number "
-  "is treated as the next input to the system\n"
-  "clear - clear the application's memory of previous inputs and "
-  "outputs to 0 \n"
-  "cls - only clears the screen\n" 
-  "exit - exit the application\n\n"
-  "*change filename accordingly\n"
-  "----------------------------------------------------\n";
-
-  cout << instructions << endl;
-}
-
 bool isInteger(string data)
 {
   istringstream iss(data);

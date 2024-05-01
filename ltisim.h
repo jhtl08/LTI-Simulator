@@ -24,9 +24,6 @@ bool isFloat(string data);
 bool systemImport(std::string systemFilename, int& Mplus1, int& N, 
 double*& aCoeff, double*& bCoeff);
 
-// instruction function
-void getInstructions();
-
 void pushData(double*& xData, int& dataSize, double numInput);
 
 double computeOutput(int& Mplus1, int& N, int& xsize, int& ysize, 
