@@ -209,13 +209,21 @@ int main()
                 pushData(xData, xDataSize, importedData[i]);
                 double result = computeOutput(Mplus1, N, xDataSize, 
                   yDataSize, aCoeff, bCoeff, xData, yData);
-                cout << importedData[i] << " \t" << result << endl;
+                if (importSize < 10)
+                {
+                  cout << importedData[i] << " \t" << result << endl;
+                }
                 if (logFile.is_open())
                 {
                   logFile << importedData[i] << " \t" << result 
                   << endl;
                 }
                 pushData(yData, yDataSize, result);
+              }
+              if (importSize > 10)
+              {
+                cout << importSize << "inputs were simulated." 
+                << endl;
               }
             }
             else
