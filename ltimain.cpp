@@ -16,6 +16,7 @@ int main()
   if (!logFile.is_open())
   { // fail export feedback
     cout << "Error: Unable to open Log ltisim-log.txt" << endl;
+    cout << "Application will run without logging" << endl;
   }
 
   bool systemFile = false;
@@ -174,24 +175,11 @@ int main()
       {
         if (!(ss >> userInput) && ss.eof()) // no second argument
         {
-          cout << "x: ";
-          for (int i=0; i<6; i++)
-          {
-            cout << xData[i] << ", ";
-          }
-          cout << "\ny: ";
-          for (int i=0; i<6; i++)
-          {
-            cout << yData[i] << ", ";
-          }
           systemFile = false;
           Mplus1 = 0;
           N = 0;
-          delete[] bCoeff;
-          delete[] aCoeff;
-
-          delete[] xData;
-          delete[] yData;
+          double *bCoeff;
+          double *aCoeff;
           
           int xDataSize = 2;
           xData = new double[xDataSize];
@@ -203,18 +191,7 @@ int main()
           yData[0] = 0.0; // y(-2)
           yData[1] = 0.0; // y(-1)
 
-          cout << "Application's memory cleared" << endl; 
-          cout << "x: ";
-          for (int i=0; i<6; i++)
-          {
-            cout << xData[i] << ", ";
-          }
-          cout << "\ny: ";
-          for (int i=0; i<6; i++)
-          {
-            cout << yData[i] << ", ";
-          }
-          cout << "clear" << endl;
+          cout << "Application's memory cleared" << endl;
         }
         else // second argument detected
         {

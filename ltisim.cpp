@@ -127,7 +127,7 @@ int signalImport(string signalFileName, double **importedData)
 
   int duration = vect_elements.size();
 
-  delete[] importedData;
+  importedData;
   // allocate memory
   *importedData = new double[duration];
 
