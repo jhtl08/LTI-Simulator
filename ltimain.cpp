@@ -40,21 +40,20 @@ int main()
 
   // System Variables
   int Mplus1 = 0, N = 0;
-  double *bCoeff, *aCoeff;
+  double *bCoeff= new double;
+  double *aCoeff = new double;
 
   // Signal Variables
-  double *xData;
-  double *yData;
-  double *importedData;
+  double *importedData = new double;
 
   // Initial Conditions
   int xDataSize = 2;
-  xData = new double[xDataSize];
+  double *xData = new double[xDataSize];
   xData[0] = 0.0; // x(-2)
   xData[1] = 0.0; // x(-1)
 
   int yDataSize = 2;
-  yData = new double[yDataSize];
+  double *yData = new double[yDataSize];
   yData[0] = 0.0; // y(-2)
   yData[1] = 0.0; // y(-1)
 
@@ -241,9 +240,11 @@ int main()
           systemFile = false;
           Mplus1 = 0;
           N = 0;
-          // delete bCoeff;
-          // delete aCoeff;
-          //double *importedData;
+          bCoeff = new double;
+          aCoeff = new double;
+          importedData = new double;
+          delete[] xData;
+          delete[] yData;
           
           int xDataSize = 2;
           xData = new double[xDataSize];
