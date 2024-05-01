@@ -40,11 +40,11 @@ int main()
 
   // System Variables
   int Mplus1 = 0, N = 0;
-  double *bCoeff= new double;
-  double *aCoeff = new double;
+  double *bCoeff;
+  double *aCoeff;
 
   // Signal Variables
-  double *importedData = new double;
+  double *importedData;
 
   // Initial Conditions
   int xDataSize = 2;
@@ -240,43 +240,20 @@ int main()
           systemFile = false;
           Mplus1 = 0;
           N = 0;
-          bCoeff = new double;
-          aCoeff = new double;
-          importedData = new double;
-          delete[] xData;
-          delete[] yData;
           
           int xDataSize = 2;
+          delete xData;
           xData = new double[xDataSize];
           xData[0] = 0.0; // x(-2)
           xData[1] = 0.0; // x(-1)
 
           int yDataSize = 2;
+          delete yData;
           yData = new double[yDataSize];
           yData[0] = 0.0; // y(-2)
           yData[1] = 0.0; // y(-1)
 
           cout << "Application's memory cleared" << endl;
-          if (logFile.is_open())
-          {
-            logFile << "clear" << endl; 
-          }
-          cout << "x: ";
-          for (int i=0; i < 6; i++){
-            cout << xData[i] << "   ";
-          }
-          cout<<"\ny: ";
-          for (int i=0; i < 6; i++){
-            cout << yData[i] << "   ";
-          }
-          cout<<"\nb: ";
-          for (int i=0; i < 3; i++){
-            cout << bCoeff[i] << "   ";
-          }
-          cout<<"\na: ";
-          for (int i=0; i < 2; i++){
-            cout << aCoeff[i] << "   ";
-          }
         }
         else // second argument detected
         {
