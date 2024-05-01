@@ -4,12 +4,20 @@
 // May 1, 2024
 
 #include "ltisim.h"
+#include <fstream>
 
 using namespace std;
 
 int main()
 {
   
+  ofstream logFile;
+  logFile.open("ltisim-log.txt", ios::app); // init to append
+  if (!logFile.is_open())
+  { // fail export feedback
+    cout << "Error: Unable to open Log ltisim-log.txt" << endl;
+  }
+
   bool systemFile = false;
 
   // System Variables
@@ -57,6 +65,7 @@ int main()
           double result = computeOutput(Mplus1, N, xDataSize, 
           yDataSize, aCoeff, bCoeff, xData, yData);
           cout << result << endl;
+          logFile << numInput << " \t" << result << endl;
           
           pushData(yData, yDataSize, result);
         }
@@ -74,8 +83,7 @@ int main()
     
     ss.clear();
 
-    // for string inputs
-    if (ss >> userInput)
+    if (ss >> userInput) // for string inputs
     {
       // "help" input
       if (userInput == "help")
@@ -89,9 +97,7 @@ int main()
           cout << "Invalid input. Type \"help\" for more information." << endl;
         }
       }
-
-      // "system [filename]" input
-      else if (userInput == "system")
+      else if (userInput == "system") // "system [filename]" input
       {
         if (ss >> userInput) // check for second arg (filename)
         {
@@ -101,9 +107,11 @@ int main()
             {
               bool importSuccess = systemImport(userInput, 
               Mplus1, N, aCoeff, bCoeff);
-              if (importSuccess)
+              if (importSuccess) 
               {
                 cout << "LTI system overwritten" << endl;
+                logFile << "new system" << endl;
+                logFile << "ready" << endl;
               }
               else
               {
@@ -114,6 +122,7 @@ int main()
             {
               systemFile = systemImport(userInput, Mplus1, N, 
               aCoeff, bCoeff);
+              logFile << "ready" << endl;
             }
           }
           else
@@ -126,9 +135,7 @@ int main()
           cout << "filename is missing from the input" << endl;
         }
       }
-
-      // "signal [filename]" input
-      else if (userInput == "signal") // for signal inputs
+      else if (userInput == "signal") // "signal [filename]" input
       {
         if (ss >> userInput) // check for second arg (filename)
         {
@@ -143,6 +150,7 @@ int main()
                 double result = computeOutput(Mplus1, N, xDataSize, 
                   yDataSize, aCoeff, bCoeff, xData, yData);
                 cout << importedData[i] << " \t" << result << endl;
+                logFile << importedData[i] << " \t" << result << endl;
 
                 pushData(yData, yDataSize, result);
               }
@@ -162,9 +170,7 @@ int main()
           cout << "filename is missing from the input" << endl;
         }
       }
-
-      // "clear" input
-      else if (userInput == "clear")
+      else if (userInput == "clear") // "clear" input
       {
         if (!(ss >> userInput) && ss.eof()) // no second argument
         {
@@ -208,29 +214,27 @@ int main()
           {
             cout << yData[i] << ", ";
           }
+          cout << "clear" << endl;
         }
         else // second argument detected
         {
           cout << "Invalid input. Type \"help\" for more information." << endl;
         }
       }
-
-      // "exit" input
-      else if (userInput == "exit")
+      else if (userInput == "exit") // "exit" input
       {
         if (!(ss >> userInput) && ss.eof()) // no second argument
         {
           cout << "LTI System Simulator terminated.\n" << endl;
-            break;
+          logFile.close();
+          break;
         }
         else // second argument detected
         {
           cout << "Invalid input. Type \"help\" for more information." << endl;
         }
       }
-
-      // "cls" input
-      else if (userInput == "cls")
+      else if (userInput == "cls") // "cls" input
       {
         if (!(ss >> userInput) && ss.eof()) // no second argument
         {
@@ -243,17 +247,13 @@ int main()
           cout << "Invalid input. Type \"help\" for more information." << endl;
         }
       }
-
-      // invalid first argument
-      else
+      else // invalid first argument
       {
         cout << "Invalid input. Type \"help\" for more information."
         << endl;
       }
     }
-
-    // invalid first argument format (not a floating number or a string)
-    else
+    else // invalid first argument format (not a floating number or a string)
     {
       cout << "Please input a command." << endl;
     }
