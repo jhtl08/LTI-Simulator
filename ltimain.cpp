@@ -238,18 +238,24 @@ int main()
         if (!(ss >> userInput) && ss.eof()) // no second argument
         {
           systemFile = false;
+
+          for(int i = 0; i < xDataSize; i++)
+          {
+            xData[i] = 0;
+          }
+          for(int i = 0; i < yDataSize; i++)
+          {
+            yData[i] = 0;
+          }
+
           Mplus1 = 0;
           N = 0;
           
           int xDataSize = 2;
-          delete xData;
-          xData = new double[xDataSize];
           xData[0] = 0.0; // x(-2)
           xData[1] = 0.0; // x(-1)
 
           int yDataSize = 2;
-          delete yData;
-          yData = new double[yDataSize];
           yData[0] = 0.0; // y(-2)
           yData[1] = 0.0; // y(-1)
 
