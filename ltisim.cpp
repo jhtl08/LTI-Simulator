@@ -127,7 +127,6 @@ int signalImport(string signalFileName, double **importedData)
 
   int duration = vect_elements.size();
 
-  importedData;
   // allocate memory
   *importedData = new double[duration];
 
@@ -281,9 +280,24 @@ double*& aCoeff, double*& bCoeff)
   // Since no errors, overwrite LTI system
   Mplus1 = temp_Mplus1;
   N = temp_N;
-  aCoeff = temp_aCoeff;
-  bCoeff = temp_bCoeff;
 
+  bCoeff = new double[Mplus1];
+
+  for (int i = 0; i < Mplus1; i++)
+  {
+    bCoeff[i] = temp_bCoeff[i];
+  }
+
+  aCoeff = new double[N];
+  
+  for (int i = 0; i < N; i++)
+  {
+    aCoeff[i] = temp_aCoeff[i];
+  }
+
+  delete[] temp_aCoeff;
+  delete[] temp_bCoeff;
+  
   // Successful system import feedback
   cout << "New system obtained from " << systemFilename 
   << "\nrecursive coefs: " << N 

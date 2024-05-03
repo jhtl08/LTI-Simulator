@@ -38,15 +38,19 @@ int main()
 
   bool systemFile = false;
 
-  // System Variables
-  int Mplus1 = 0, N = 0;
-  double *bCoeff;
-  double *aCoeff;
+  // System Variables (default)
+  int Mplus1 = 1;
+  double *bCoeff = new double[Mplus1];
+  bCoeff[0] = 0.0;
 
-  // Signal Variables
+  int N = 1;
+  double *aCoeff = new double[N];
+  aCoeff[0] = 0.0;
+
+  // Signal Variables (default)
   double *importedData;
 
-  // Initial Conditions
+  // Initial Conditions (default)
   int xDataSize = 2;
   double *xData = new double[xDataSize];
   xData[0] = 0.0; // x(-2)
@@ -220,6 +224,9 @@ int main()
                 }
                 pushData(yData, yDataSize, result);
               }
+              
+              delete[] importedData;
+
               if (importSize >= 10)
               {
                 cout << importSize << " inputs were simulated." 
@@ -245,37 +252,40 @@ int main()
       }
       else if (userInput == "clear") // "clear" input
       {
-        if (!(ss >> userInput) && ss.eof()) // no second argument
-        {
-          systemFile = false;
-
-          for(int i = 0; i < xDataSize; i++)
+          if (!(ss >> userInput) && ss.eof()) // no second argument
           {
-            xData[i] = 0;
+              systemFile = false;
+
+              delete[] xData;
+              delete[] yData;
+              delete[] aCoeff;
+              delete[] bCoeff;
+              
+              xDataSize = 2;
+              xData = new double[xDataSize];
+              xData[0] = 0.0; // x(-2)
+              xData[1] = 0.0; // x(-1)
+
+              yDataSize = 2;
+              yData = new double[yDataSize];
+              yData[0] = 0.0; // y(-2)
+              yData[1] = 0.0; // y(-1)
+
+              int Mplus1 = 1;
+              bCoeff = new double[Mplus1];
+              bCoeff[0] = 0.0;
+
+              int N = 1;
+              aCoeff = new double[N];
+              aCoeff[0] = 0.0;
+
+              cout << "Application's memory cleared" << endl;
           }
-          for(int i = 0; i < yDataSize; i++)
+          else // second argument detected
           {
-            yData[i] = 0;
+              cout << "Invalid input. Type \"help\" for more"
+                  << " information." << endl;
           }
-
-          Mplus1 = 0;
-          N = 0;
-          
-          int xDataSize = 2;
-          xData[0] = 0.0; // x(-2)
-          xData[1] = 0.0; // x(-1)
-
-          int yDataSize = 2;
-          yData[0] = 0.0; // y(-2)
-          yData[1] = 0.0; // y(-1)
-
-          cout << "Application's memory cleared" << endl;
-        }
-        else // second argument detected
-        {
-          cout << "Invalid input. Type \"help\" for more"
-          " information." << endl;
-        }
       }
       else if (userInput == "exit") // "exit" input
       {
