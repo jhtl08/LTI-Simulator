@@ -48,8 +48,6 @@ int main()
   aCoeff[0] = 0.0;
 
   // Signal Variables (default)
-  double *importedData;
-
   // Initial Conditions (default)
   int xDataSize = 2;
   double *xData = new double[xDataSize];
@@ -206,6 +204,7 @@ int main()
           {
             if (!(ss >> userInput) && ss.eof()) // check file name
             {
+              double *importedData;
               int importSize = signalImport(userInput, 
               &importedData);
               for (int i = 0; i < importSize; i++)
