@@ -328,7 +328,7 @@ int main()
     }
     else // invalid first argument format (not float or string)
     {
-      cout << "Please input a command." << endl;
+      cout << "Please input a valid command." << endl;
     }
   }
 
