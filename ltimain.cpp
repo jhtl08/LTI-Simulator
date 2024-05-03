@@ -205,6 +205,7 @@ int main()
             if (!(ss >> userInput) && ss.eof()) // check file name
             {
               double *importedData;
+              
               int importSize = signalImport(userInput, 
               &importedData);
               for (int i = 0; i < importSize; i++)
