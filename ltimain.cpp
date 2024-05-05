@@ -87,7 +87,7 @@ int main()
           pushData(xData, xDataSize, numInput);
           double result = computeOutput(Mplus1, N, xDataSize, 
           yDataSize, aCoeff, bCoeff, xData, yData);
-          cout << result << endl;
+          cout << "\t" << result << endl;
           if(logFile.is_open())
           {
             logFile << numInput << " \t" << result << endl;
